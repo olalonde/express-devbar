@@ -1,0 +1,30 @@
+{
+  "name": "express-devbar",
+  "version": "0.0.1",
+  "description": "Development bar middleware that shows Git/Heroku info.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:olalonde/express-devbar.git"
+  },
+  "keywords": [
+    "express",
+    "connect",
+    "middleware",
+    "development",
+    "heroku",
+    "git"
+  ],
+  "author": "Olivier Lalonde <olalonde@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/olalonde/express-devbar/issues"
+  },
+  "dependencies": {
+    "heroku-api": "~0.1.2",
+    "async": "~0.2.9"
+  }
+}
