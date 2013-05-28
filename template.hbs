@@ -1,0 +1,81 @@
+<style>
+
+  #devbar {
+    position: fixed;
+    bottom:0;
+    right:0;
+    z-index:10;
+    padding: 2px;
+    margin: 0;
+    font-size: smaller;
+  }
+
+  #devbar .value {
+    color: #000;
+  }
+
+  #devbar .deployed, #devbar .not-deployed, .deployed-to-staging {
+    font-weight:bold;
+  }
+
+  #devbar .deployed {
+    color: green;
+  }
+
+  #devbar .not-deployed {
+    color: red;
+  }
+
+  #devbar .deployed-to-staging {
+    color: orangered;
+  }
+
+  #devbar ul {
+    list-style-type: none;
+    margin: 0;
+  }
+
+  #devbar ul li {
+    display: block;
+    float: left;
+    margin-right: 10px;
+  }
+
+</style>
+<ul>
+  <li><span class="name">environment:</span> 
+  <span class="value">{{environment}}</span>
+  </li>
+  <li><span class="name">local:</span> 
+  <span class="value">
+    {{#with local}}
+      <a href="{{commit_url commit}}">{{commit}}</a>
+      {{#if diffs}}
+        (diff 
+        {{#each diffs}} <a href="{{compare_url commit ../commit}}">{{env}}</a>{{/each}})
+      {{/if}}
+    {{/with}}
+  </span>
+  </li>
+  <li><span class="name">staging:</span> 
+  <span class="value">
+    {{#with staging}}
+    {{name}} <a href="{{commit_url commit}}">{{commit}}</a>
+      {{#if diffs}}
+        (diff 
+        {{#each diffs}} <a href="{{compare_url commit ../commit}}">{{env}}</a>{{/each}})
+      {{/if}}
+    {{/with}}
+  </span>
+  </li>
+  <li><span class="name">production:</span> 
+  <span class="value">
+    {{#with production}}
+    {{name}} <a href="{{commit_url commit}}">{{commit}}</a>
+    {{/with}}
+  </span>
+  </li>
+  <li><span class="name">status:</span> 
+  <span class="{{dash status}}">{{status}}</span>
+  </li>
+</ul>

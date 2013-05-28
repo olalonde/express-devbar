@@ -25,6 +25,7 @@
   },
   "dependencies": {
     "heroku-api": "~0.1.2",
-    "async": "~0.2.9"
+    "async": "~0.2.9",
+    "handlebars": "~1.0.11"
   }
 }

@@ -1,8 +1,36 @@
 var exec = require('child_process').exec;
 var async = require('async');
 var Heroku = require('heroku-api');
+var fs = require('fs'),
+  path = require('path');
+var Handlebars = require('handlebars');
 
-module.exports = function (config) {
+var source = fs.readFileSync(path.join(__dirname, 'template.hbs'), { encoding: 'utf8' });
+var template = Handlebars.compile(source);
+
+
+Handlebars.registerHelper('eq', function (string1, string2, options) {
+  if(string1 == string2) {
+    return options.fn(this);
+  } else {
+    return options.inverse(this);
+  }
+});
+
+Handlebars.registerHelper('dash', function (string, options) {
+  return string.replace(/\s/g, '-');
+});
+
+module.exports = function (options) {
+  var github_baseurl = 'https://github.com/' + options.github;
+
+  Handlebars.registerHelper('commit_url', function (commit) {
+    return github_baseurl + '/commit/' + commit;
+  });
+
+  Handlebars.registerHelper('compare_url', function (commit1, commit2) {
+    return github_baseurl + '/compare/' + commit1 + '...' + commit2;
+  });
 
   function init_heroku(config) {
     var apps = config.apps;
@@ -14,16 +42,17 @@ module.exports = function (config) {
     return heroku;
   }
 
-  var heroku = init_heroku(config);
+  var heroku = init_heroku(options.heroku);
 
   var devbar;
 
   function respond(req, res, next, devbar) {
     res.format({
-      json: function () {
-        res.send(devbar);
-      },
       html: function () {
+        var result = template(devbar);
+        res.send(result);
+      },
+      json: function () {
         res.send(devbar);
       }
     });
@@ -93,15 +122,33 @@ module.exports = function (config) {
           devbar.status = 'deployed';
       }
       // local, production
-      else if (devbar.local) {
+      else if (devbar.local && devbar.production) {
         if (devbar.local.commit === devbar.production.commit)
           devbar.status = 'deployed';
       }
       // staging, production
-      else {
+      else if (devbar.staging) {
         if (devbar.staging.commit === devbar.production.commit)
           devbar.status = 'deployed';
       }
+
+      // diffs
+      if (devbar.local) {
+        devbar.local.diffs = [];
+        if (devbar.local.commit !== devbar.staging.commit) {
+          devbar.local.diffs.push({ env: 'staging', commit: devbar.staging.commit });
+        }
+        if (devbar.local.commit !== devbar.production.commit) {
+          devbar.local.diffs.push({ env: 'production', commit: devbar.production.commit });
+        }
+      }
+      if (devbar.staging) {
+        devbar.staging.diffs = [];
+        if (devbar.staging.commit !== devbar.production.commit) {
+          devbar.staging.diffs.push({ env: 'production', commit: devbar.production.commit });
+        }
+      }
+      devbar.github = options.github;
 
       cb(devbar);
     });
